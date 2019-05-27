@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.bellatrix.services.ws.access.ValidateCredentialResponse;
 import org.bellatrix.services.ws.transfers.InquiryResponse;
 import org.bellatrix.services.ws.transfers.PaymentResponse;
 import org.bellatrix.services.ws.transfertypes.LoadTransferTypesByUsernameResponse;
@@ -25,6 +26,7 @@ import com.hazelcast.core.IMap;
 import com.jpa.optima.admin.model.AdminMenu;
 import com.jpa.optima.admin.model.Group;
 import com.jpa.optima.admin.model.Member;
+import com.jpa.optima.admin.model.Ticket;
 import com.jpa.optima.admin.model.TopupMember;
 import com.jpa.optima.admin.model.Transaction;
 
@@ -40,9 +42,11 @@ public class TransactionController {
 	private TransactionProcessor transactionProcessor;
 	@Autowired
 	private TransferTypeProcessor transferTypeProcessor;
+	@Autowired
+	private AccessProcessor accessProcessor;
 
 	@RequestMapping(value = "/transaction", method = RequestMethod.GET)
-	public ModelAndView transferAgent(
+	public ModelAndView transfer(
 			@CookieValue(value = "SessionID", defaultValue = "defaultCookieValue") String sessionID, Model model) {
 		try {
 			if (sessionID.equalsIgnoreCase("defaultCookieValue") || sessionID.equalsIgnoreCase(null)) {
@@ -107,11 +111,11 @@ public class TransactionController {
 				model.addAttribute("toMember", inquiry.getToMember().getUsername());
 				model.addAttribute("fromName", inquiry.getFromMember().getName());
 				model.addAttribute("toName", inquiry.getToMember().getName());
-				
+
 				model.addAttribute("trxAmount", inquiry.getFormattedTransactionAmount());
 				model.addAttribute("fee", inquiry.getFormattedTotalFees());
 				model.addAttribute("totalAmount", inquiry.getFormattedFinalAmount());
-				
+
 				model.addAttribute("amount", inquiry.getFinalAmount());
 				model.addAttribute("description", transaction.getDescription());
 				model.addAttribute("mainMenu", mainMenu);
@@ -202,6 +206,174 @@ public class TransactionController {
 			model.addAttribute("unreadMessage", unread);
 			model.addAttribute("messageSummary", messageSummary);
 			return new ModelAndView("transaction");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ModelAndView("page_500");
+		}
+	}
+
+	@RequestMapping(value = "/ticket", method = RequestMethod.GET)
+	public ModelAndView ticketConfirmation(
+			@CookieValue(value = "SessionID", defaultValue = "defaultCookieValue") String sessionID, Model model) {
+		try {
+			if (sessionID.equalsIgnoreCase("defaultCookieValue") || sessionID.equalsIgnoreCase(null)) {
+				return new ModelAndView("redirect:/login");
+			}
+			IMap<String, Member> memberMap = instance.getMap("Member");
+			Member member = memberMap.get(sessionID);
+			if (member == null) {
+				return new ModelAndView("redirect:/login");
+			}
+			AdminMenu adminMenu = menuProcessor.getMenuList(member.getGroupID());
+			List<String> mainMenu = adminMenu.getMainMenu();
+			Integer unreadMessage = messageProcessor.getCountUnreadMessages(member.getUsername());
+			String unread = unreadMessage != 0 ? String.valueOf(unreadMessage) : "";
+			List<String> messageSummary = messageProcessor.loadUnreadMessages(member.getUsername());
+
+			model.addAttribute(member);
+			model.addAttribute("ticket", new Transaction());
+			model.addAttribute("mainMenu", mainMenu);
+			model.addAttribute("unreadMessage", unread);
+			model.addAttribute("messageSummary", messageSummary);
+			return new ModelAndView("ticket");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ModelAndView("page_500");
+		}
+	}
+
+	@RequestMapping(value = "/ticketInquiry", method = RequestMethod.POST)
+	public ModelAndView ticketInquiry(
+			@CookieValue(value = "SessionID", defaultValue = "defaultCookieValue") String sessionID,
+			@Valid @ModelAttribute("ticket") Ticket ticket, BindingResult result, ModelMap model) {
+		try {
+			if (result.hasErrors()) {
+				return new ModelAndView("page_500");
+			}
+			if (sessionID.equalsIgnoreCase("defaultCookieValue") || sessionID.equalsIgnoreCase(null)) {
+				return new ModelAndView("redirect:/login");
+			}
+
+			IMap<String, Member> memberMap = instance.getMap("Member");
+			Member member = memberMap.get(sessionID);
+
+			if (member == null) {
+				return new ModelAndView("redirect:/login");
+			}
+			AdminMenu adminMenu = menuProcessor.getMenuList(member.getGroupID());
+			List<String> mainMenu = adminMenu.getMainMenu();
+			Integer unreadMessage = messageProcessor.getCountUnreadMessages(member.getUsername());
+			String unread = unreadMessage != 0 ? String.valueOf(unreadMessage) : "";
+			List<String> messageSummary = messageProcessor.loadUnreadMessages(member.getUsername());
+
+			InquiryResponse inquiry = transactionProcessor.ticketInquiry(ticket, member.getUsername());
+
+			if (inquiry.getStatus().getMessage().equalsIgnoreCase("PROCESSED")) {
+				model.addAttribute("transactionTypeName", inquiry.getTransferType().getName());
+				model.addAttribute("transferTypeID", inquiry.getTransferType().getId());
+				model.addAttribute("fromMember", inquiry.getFromMember().getUsername());
+				model.addAttribute("toMember", inquiry.getToMember().getUsername());
+				model.addAttribute("fromName", inquiry.getFromMember().getName());
+				model.addAttribute("toName", inquiry.getToMember().getName());
+
+				model.addAttribute("trxAmount", inquiry.getFormattedTransactionAmount());
+				model.addAttribute("fee", inquiry.getFormattedTotalFees());
+				model.addAttribute("totalAmount", inquiry.getFormattedFinalAmount());
+
+				model.addAttribute("ticketID", ticket.getTicketID());
+				model.addAttribute("amount", inquiry.getFinalAmount());
+				model.addAttribute("mainMenu", mainMenu);
+				model.addAttribute("unreadMessage", unread);
+				model.addAttribute("messageSummary", messageSummary);
+				model.addAttribute(member);
+				return new ModelAndView("ticketInquiry");
+			} else {
+				return new ModelAndView("redirect:/ticketConfirmationResult?fault=" + inquiry.getStatus().getMessage());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ModelAndView("redirect:/ticketConfirmationResult?fault=" + ex.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/ticketConfirmation", method = RequestMethod.POST)
+	public ModelAndView ticketConfirmation(
+			@CookieValue(value = "SessionID", defaultValue = "defaultCookieValue") String sessionID,
+			@Valid @ModelAttribute("ticket") Ticket ticket, BindingResult result, ModelMap model) {
+		try {
+			if (result.hasErrors()) {
+				return new ModelAndView("page_500");
+			}
+			if (sessionID.equalsIgnoreCase("defaultCookieValue") || sessionID.equalsIgnoreCase(null)) {
+				return new ModelAndView("redirect:/login");
+			}
+
+			IMap<String, Member> memberMap = instance.getMap("Member");
+			Member member = memberMap.get(sessionID);
+
+			if (member == null) {
+				return new ModelAndView("redirect:/login");
+			}
+
+			ValidateCredentialResponse vcr = accessProcessor.validateCredential(member.getUsername(),
+					ticket.getCredential());
+			if (!vcr.getStatus().getMessage().equalsIgnoreCase("VALID")) {
+				return new ModelAndView("redirect:/ticketConfirmationResult?fault=" + vcr.getStatus().getMessage());
+			}
+
+			PaymentResponse paymentResponse = transactionProcessor.ticketPayment(ticket.getTicketID());
+
+			if (paymentResponse.getStatus().getMessage().equalsIgnoreCase("PROCESSED")) {
+				return new ModelAndView("redirect:/ticketConfirmationResult");
+			} else {
+				return new ModelAndView(
+						"redirect:/ticketConfirmationResult?fault=" + paymentResponse.getStatus().getMessage());
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ModelAndView("redirect:/ticketConfirmationResult?fault=" + ex.getMessage());
+		}
+	}
+
+	@RequestMapping(value = "/ticketConfirmationResult", method = RequestMethod.GET)
+	public ModelAndView ticketConfirmationResult(@RequestParam(value = "fault", required = false) String fault,
+			@CookieValue(value = "SessionID", defaultValue = "defaultCookieValue") String sessionID, ModelMap model) {
+		try {
+			if (sessionID.equalsIgnoreCase("defaultCookieValue") || sessionID.equalsIgnoreCase(null)) {
+				return new ModelAndView("redirect:/login");
+			}
+			IMap<String, Member> memberMap = instance.getMap("Member");
+			Member member = memberMap.get(sessionID);
+			if (member == null) {
+				return new ModelAndView("redirect:/login");
+			}
+			AdminMenu adminMenu = menuProcessor.getMenuList(member.getGroupID());
+			List<String> mainMenu = adminMenu.getMainMenu();
+			Integer unreadMessage = messageProcessor.getCountUnreadMessages(member.getUsername());
+			String unread = unreadMessage != 0 ? String.valueOf(unreadMessage) : "";
+			List<String> messageSummary = messageProcessor.loadUnreadMessages(member.getUsername());
+
+			if (fault == null) {
+				model.addAttribute("notification", "success");
+				model.addAttribute("title", "Ticket Confirmation");
+				model.addAttribute("message", "Ticket has been confirmed successfully");
+			} else {
+				model.addAttribute("notification", "error");
+				model.addAttribute("title", "Ticket Confirmation Failed");
+				model.addAttribute("message", fault);
+			}
+
+			List<String> transferType = transferTypeProcessor.loadTransferType(member.getUsername());
+
+			model.addAttribute(member);
+			model.addAttribute("ticket", new Ticket());
+			model.addAttribute("name", member.getName());
+			model.addAttribute("fromMember", member.getUsername());
+			model.addAttribute("listTransfer", transferType);
+			model.addAttribute("mainMenu", mainMenu);
+			model.addAttribute("unreadMessage", unread);
+			model.addAttribute("messageSummary", messageSummary);
+			return new ModelAndView("ticket");
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return new ModelAndView("page_500");

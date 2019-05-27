@@ -361,7 +361,7 @@ public class TransferTypeController {
 		model.addAttribute("fromAccount", response.getTransferTypes().getFromAccounts() + " - "
 				+ response.getTransferTypes().getFromAccountName());
 		model.addAttribute("toAccount",
-				response.getTransferTypes().getFromAccounts() + " - " + response.getTransferTypes().getToAccountName());
+				response.getTransferTypes().getToAccounts() + " - " + response.getTransferTypes().getToAccountName());
 		model.addAttribute("minAmount", response.getTransferTypes().getMinAmount());
 		model.addAttribute("maxAmount", response.getTransferTypes().getMaxAmount());
 		model.addAttribute("otpThreshold", response.getTransferTypes().getOtpThreshold());

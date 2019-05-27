@@ -232,6 +232,10 @@
 		<url-pattern>/transactionInquiry</url-pattern>
 		<url-pattern>/transactionPayment</url-pattern>
 		<url-pattern>/transactionPaymentResult</url-pattern>
+		<url-pattern>/ticket</url-pattern>
+		<url-pattern>/ticketInquiry</url-pattern>
+		<url-pattern>/ticketConfirmation</url-pattern>
+		<url-pattern>/ticketConfirmationResult</url-pattern>
 		<url-pattern>*.html</url-pattern>
 	</servlet-mapping>
 

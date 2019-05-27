@@ -119,7 +119,7 @@
 		},{
 			"data" : "id",
 			"render" : function ( data, type, row ) {
-				return "<a href='editKyc?id=" + data'>Detail</a>";;
+				 return "<a href='editKyc?id=" + data + "' class='btn btn-primary btn-xs'><i class='fa fa-folder'></i> Detail</a>";
 			}
 		}]
 	});

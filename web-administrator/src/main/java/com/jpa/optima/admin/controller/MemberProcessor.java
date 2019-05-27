@@ -175,6 +175,9 @@ public class MemberProcessor {
 		memberDetailsContentMap.put("idCard", loadMembersByUsernameResponse.getMembers().get(0).getIdCardNo());
 		memberDetailsContentMap.put("motherName",
 				loadMembersByUsernameResponse.getMembers().get(0).getMotherMaidenName());
+		memberDetailsContentMap.put("work", loadMembersByUsernameResponse.getMembers().get(0).getWork());
+		memberDetailsContentMap.put("sex", loadMembersByUsernameResponse.getMembers().get(0).getSex());
+		memberDetailsContentMap.put("nationality", loadMembersByUsernameResponse.getMembers().get(0).getNationality());
 		memberDetailsContentMap.put("pob", loadMembersByUsernameResponse.getMembers().get(0).getPlaceOfBirth());
 
 		if (loadMembersByUsernameResponse.getMembers().get(0).getDateOfBirth() == null) {
@@ -233,6 +236,9 @@ public class MemberProcessor {
 		memberDetailsContentMap.put("idCard", loadMembersByUsernameResponse.getMembers().get(0).getIdCardNo());
 		memberDetailsContentMap.put("motherName",
 				loadMembersByUsernameResponse.getMembers().get(0).getMotherMaidenName());
+		memberDetailsContentMap.put("work", loadMembersByUsernameResponse.getMembers().get(0).getWork());
+		memberDetailsContentMap.put("sex", loadMembersByUsernameResponse.getMembers().get(0).getSex());
+		memberDetailsContentMap.put("nationality", loadMembersByUsernameResponse.getMembers().get(0).getNationality());
 		memberDetailsContentMap.put("pob", loadMembersByUsernameResponse.getMembers().get(0).getPlaceOfBirth());
 
 		if (loadMembersByUsernameResponse.getMembers().get(0).getDateOfBirth() == null) {
@@ -286,6 +292,9 @@ public class MemberProcessor {
 		memberDetailsContentMap.put("idCard", loadMembersByUsernameResponse.getMembers().get(0).getIdCardNo());
 		memberDetailsContentMap.put("motherName",
 				loadMembersByUsernameResponse.getMembers().get(0).getMotherMaidenName());
+		memberDetailsContentMap.put("work", loadMembersByUsernameResponse.getMembers().get(0).getWork());
+		memberDetailsContentMap.put("sex", loadMembersByUsernameResponse.getMembers().get(0).getSex());
+		memberDetailsContentMap.put("nationality", loadMembersByUsernameResponse.getMembers().get(0).getNationality());
 		memberDetailsContentMap.put("pob", loadMembersByUsernameResponse.getMembers().get(0).getPlaceOfBirth());
 
 		if (loadMembersByUsernameResponse.getMembers().get(0).getDateOfBirth() == null) {
@@ -404,7 +413,10 @@ public class MemberProcessor {
 
 		updateMemberReq.setIdCardNo(member.getIdCard());
 		updateMemberReq.setMotherMaidenName(member.getMotherName());
-
+		updateMemberReq.setWork(member.getWork());
+		updateMemberReq.setSex(member.getSex());
+		updateMemberReq.setNationality(member.getNationality());
+		
 		client.updateMembers(memberHeaderAuth, updateMemberReq);
 	}
 
@@ -577,6 +589,9 @@ public class MemberProcessor {
 		memberDetailsContentMap.put("idCard", loadKycResponse.getMemberKYC().get(0).getFromMember().getIdCardNo());
 		memberDetailsContentMap.put("motherName",
 				loadKycResponse.getMemberKYC().get(0).getFromMember().getMotherMaidenName());
+		memberDetailsContentMap.put("work", loadKycResponse.getMemberKYC().get(0).getFromMember().getWork());
+		memberDetailsContentMap.put("sex", loadKycResponse.getMemberKYC().get(0).getFromMember().getSex());
+		memberDetailsContentMap.put("nationality", loadKycResponse.getMemberKYC().get(0).getFromMember().getNationality());
 		memberDetailsContentMap.put("pob", loadKycResponse.getMemberKYC().get(0).getFromMember().getPlaceOfBirth());
 		memberDetailsContentMap.put("dob", Utils.formatSimpleDate(loadKycResponse.getMemberKYC().get(0).getFromMember()
 				.getDateOfBirth().toGregorianCalendar().getTime()));

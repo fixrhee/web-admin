@@ -128,13 +128,42 @@
 								<label class="control-label col-md-3 col-sm-3 col-xs-12"
 									for="memberMother">
 									Mother Maiden Name
-									<span class="required">*</span>
 								</label>
 								<div class="col-md-6 col-sm-6 col-xs-12">
 									<input type="text" id="motherName" name="motherName" value="${motherName}" disabled
-										required="required" class="form-control col-md-7 col-xs-12">
+										 class="form-control col-md-7 col-xs-12">
 								</div>
 							</div>
+							<div class="form-group">
+										<label class="control-label col-md-3 col-sm-3 col-xs-12"
+											for="work">
+											Work
+										</label>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<input type="text" id="work" name="work" value="${work}"
+												class="form-control col-md-7 col-xs-12">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-3 col-sm-3 col-xs-12"
+											for="sex">
+											Sex
+										</label>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<input type="text" id="sex" name="sex" value="${sex}"
+												class="form-control col-md-7 col-xs-12">
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-3 col-sm-3 col-xs-12"
+											for="nationality">
+											Nationality
+										</label>
+										<div class="col-md-6 col-sm-6 col-xs-12">
+											<input type="text" id="nationality" name="nationality" value="${nationality}"
+												class="form-control col-md-7 col-xs-12">
+										</div>
+									</div>
 							<div class="form-group">
 								<label class="control-label col-md-3 col-sm-3 col-xs-12"
 									for="memberPOB">

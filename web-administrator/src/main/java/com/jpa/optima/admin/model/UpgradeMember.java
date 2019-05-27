@@ -14,6 +14,9 @@ public class UpgradeMember implements Serializable {
 	private String pob;
 	private String idCard;
 	private String motherName;
+	private String work;
+	private String sex;
+	private String nationality;
 	private String name;
 	private String username;
 	private String usernameMember;
@@ -178,6 +181,30 @@ public class UpgradeMember implements Serializable {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getWork() {
+		return work;
+	}
+
+	public void setWork(String work) {
+		this.work = work;
+	}
+
+	public String getSex() {
+		return sex;
+	}
+
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
 	}
 
 }

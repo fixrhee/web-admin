@@ -9,6 +9,7 @@ import javax.xml.ws.Holder;
 import org.bellatrix.services.ws.transfers.ConfirmPaymentRequest;
 import org.bellatrix.services.ws.transfers.InquiryRequest;
 import org.bellatrix.services.ws.transfers.InquiryResponse;
+import org.bellatrix.services.ws.transfers.PaymentInquiryRequest;
 import org.bellatrix.services.ws.transfers.PaymentRequest;
 import org.bellatrix.services.ws.transfers.PaymentResponse;
 import org.bellatrix.services.ws.transfers.RequestPaymentConfirmationResponse;
@@ -18,6 +19,8 @@ import org.bellatrix.services.ws.transfers.Transfer;
 import org.bellatrix.services.ws.transfers.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.jpa.optima.admin.model.Ticket;
 import com.jpa.optima.admin.model.TopupMember;
 import com.jpa.optima.admin.model.Transaction;
 
@@ -26,6 +29,41 @@ public class TransactionProcessor {
 
 	@Autowired
 	private ContextLoader contextLoader;
+
+	public InquiryResponse ticketInquiry(Ticket ticket, String username) throws MalformedURLException {
+		URL url = new URL(contextLoader.getHostWSUrl() + "transfers?wsdl");
+		QName qName = new QName(contextLoader.getHostWSPort(), "TransferService");
+		TransferService service = new TransferService(url, qName);
+		Transfer client = service.getTransferPort();
+
+		org.bellatrix.services.ws.transfers.Header headerPayment = new org.bellatrix.services.ws.transfers.Header();
+		headerPayment.setToken(contextLoader.getHeaderToken());
+		Holder<org.bellatrix.services.ws.transfers.Header> paymentHeaderAuth = new Holder<org.bellatrix.services.ws.transfers.Header>();
+		paymentHeaderAuth.value = headerPayment;
+
+		PaymentInquiryRequest inquiryRequest = new PaymentInquiryRequest();
+		inquiryRequest.setRequestID(ticket.getTicketID());
+
+		InquiryResponse inquiryResponse = client.requestPaymentInquiry(paymentHeaderAuth, inquiryRequest);
+		return inquiryResponse;
+	}
+
+	public PaymentResponse ticketPayment(String ticketID) throws MalformedURLException {
+		URL url = new URL(contextLoader.getHostWSUrl() + "transfers?wsdl");
+		QName qName = new QName(contextLoader.getHostWSPort(), "TransferService");
+		TransferService service = new TransferService(url, qName);
+		Transfer client = service.getTransferPort();
+
+		org.bellatrix.services.ws.transfers.Header headerPayment = new org.bellatrix.services.ws.transfers.Header();
+		headerPayment.setToken(contextLoader.getHeaderToken());
+		Holder<org.bellatrix.services.ws.transfers.Header> paymentHeaderAuth = new Holder<org.bellatrix.services.ws.transfers.Header>();
+		paymentHeaderAuth.value = headerPayment;
+
+		ConfirmPaymentRequest cpr = new ConfirmPaymentRequest();
+		cpr.setRequestID(ticketID);
+		PaymentResponse paymentResponse = client.confirmPayment(paymentHeaderAuth, cpr);
+		return paymentResponse;
+	}
 
 	public InquiryResponse transactionInquiry(Transaction transfer, String username) throws MalformedURLException {
 		URL url = new URL(contextLoader.getHostWSUrl() + "transfers?wsdl");
@@ -39,7 +77,7 @@ public class TransactionProcessor {
 		paymentHeaderAuth.value = headerPayment;
 
 		String transferType = transfer.getTransactionType().split("-")[0].trim();
-	
+
 		InquiryRequest inquiryRequest = new InquiryRequest();
 		inquiryRequest.setFromMember(username);
 		inquiryRequest.setToMember(transfer.getToMember());

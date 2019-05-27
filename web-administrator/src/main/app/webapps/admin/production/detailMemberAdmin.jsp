@@ -42,7 +42,7 @@
 								</a>
 								<ul class="dropdown-menu" role="menu">
 									<li>
-										<a href="#">Settings 1</a>
+										<a href="/admin/editMember?username=${username}">Edit</a>
 									</li>
 								</ul>
 							</li>
@@ -107,6 +107,21 @@
 									<td width="150">Mother Maiden Name</td>
 									<td width="150"> : </td>
 									<td align="right">${motherName}</td>
+								</tr>
+								<tr>
+									<td width="150">Work</td>
+									<td width="150"> : </td>
+									<td align="right">${work}</td>
+								</tr>
+								<tr>
+									<td width="150">Sex</td>
+									<td width="150"> : </td>
+									<td align="right">${sex}</td>
+								</tr>
+								<tr>
+									<td width="150">Nationality</td>
+									<td width="150"> : </td>
+									<td align="right">${nationality}</td>
 								</tr>
 								<tr>
 									<td width="150">Place of Birth</td>

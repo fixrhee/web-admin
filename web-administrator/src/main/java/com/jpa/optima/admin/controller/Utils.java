@@ -33,13 +33,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 public abstract class Utils {
 
-//	public static String formatAmount(BigDecimal amount) {
-//		DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
-//		symbols.setGroupingSeparator('.');
-//		symbols.setDecimalSeparator(',');
-//		DecimalFormat df = new DecimalFormat("#,##0.00", symbols);
-//		return "Rp." + df.format(amount);
-//	}
+	// public static String formatAmount(BigDecimal amount) {
+	// DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
+	// symbols.setGroupingSeparator('.');
+	// symbols.setDecimalSeparator(',');
+	// DecimalFormat df = new DecimalFormat("#,##0.00", symbols);
+	// return "Rp." + df.format(amount);
+	// }
 
 	public static String GenerateRandomNumber() {
 		String ts = String.valueOf(System.currentTimeMillis());
@@ -187,5 +187,12 @@ public abstract class Utils {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTime(fromatedDate);
 		return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+	}
+
+	public static XMLGregorianCalendar dateToXML(Date date) throws DatatypeConfigurationException {
+		GregorianCalendar c = new GregorianCalendar();
+		c.setTime(date);
+		XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+		return date2;
 	}
 }

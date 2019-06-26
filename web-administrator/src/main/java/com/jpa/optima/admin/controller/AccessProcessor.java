@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Holder;
 
@@ -80,7 +81,8 @@ public class AccessProcessor {
 		}
 	}
 
-	public void resetCredential(UpgradeMember upgrade) throws Exception_Exception, MalformedURLException {
+	public void resetCredential(UpgradeMember upgrade) throws Exception_Exception, MalformedURLException,
+			DatatypeConfigurationException, TransactionException_Exception {
 		URL url = new URL(contextLoader.getHostWSUrl() + "access?wsdl");
 		QName qName = new QName(contextLoader.getHostWSPort(), "AccessService");
 		AccessService service = new AccessService(url, qName);
@@ -112,15 +114,10 @@ public class AccessProcessor {
 
 		ResetCredentialRequest rcr = new ResetCredentialRequest();
 		rcr.setAccessTypeID(contextLoader.getMemberTrxCredentialTypeID());
-		rcr.setUsername(upgrade.getMsisdn());
+		rcr.setUsername(upgrade.getUsername());
 		rcr.setEmail(upgrade.getEmail());
+		client.resetCredential(accessHeaderAuth, rcr);
 
-		try {
-			client.resetCredential(accessHeaderAuth, rcr);
-		} catch (TransactionException_Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public CredentialStatusResponse credentialStatus(String username) throws MalformedURLException {
@@ -165,7 +162,8 @@ public class AccessProcessor {
 		}
 	}
 
-	public void createCredential(String username, String credential, Integer accessTypeID) throws MalformedURLException {
+	public void createCredential(String username, String credential, Integer accessTypeID)
+			throws MalformedURLException {
 		try {
 			URL url = new URL(contextLoader.getHostWSUrl() + "access?wsdl");
 			QName qName = new QName(contextLoader.getHostWSPort(), "AccessService");
